@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns="https://jakarta.ee/xml/ns/jakartaee"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="6.0">
+
+	<servlet>
+		<servlet-name>ProductListController</servlet-name>
+		<servlet-class>vn.iotstar.controllers.ProductListController
+		</servlet-class>
+	</servlet>
+
+	<servlet-mapping>
+		<servlet-name>ProductListController</servlet-name>
+		<url-pattern>/product</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>ProductListController</servlet-name>
+		<url-pattern>/ajax-product-list</url-pattern>
+	</servlet-mapping>
+
+	<welcome-file-list>
+		<welcome-file>index.jsp</welcome-file>
+		<welcome-file>home.jsp</welcome-file>
+		<welcome-file>tuan.jsp</welcome-file>
+	</welcome-file-list>
+
+	<session-config>
+		<tracking-mode>COOKIE</tracking-mode>
+	</session-config>
+
+	<error-page>
+		<exception-type>java.lang.Throwable</exception-type>
+		<location>/error.jsp</location>
+	</error-page>
+
+	<filter>
+		<filter-name>AjaxSitemeshFilter</filter-name>
+		<filter-class>vn.iotstar.filter.AjaxSitemeshFilter</filter-class>
+	</filter>
+
+	<filter-mapping>
+		<filter-name>AjaxSitemeshFilter</filter-name>
+		<url-pattern>/product</url-pattern>
+		<url-pattern>/product/*</url-pattern>
+	</filter-mapping>
+
+	<!-- ✅ Sitemesh layout decorator -->
+	<filter>
+		<filter-name>sitemesh</filter-name>
+		<filter-class>org.sitemesh.config.ConfigurableSiteMeshFilter
+		</filter-class>
+	</filter>
+
+	<filter-mapping>
+		<filter-name>sitemesh</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
+
+
+</web-app>

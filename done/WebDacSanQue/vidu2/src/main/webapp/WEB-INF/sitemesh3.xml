@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sitemesh>
+    <!-- Decorator cho khu vực admin -->
+    <mapping path="/admin/*" name="admin" decorator="/admin.jsp"/>
+
+    <!-- Decorator cho trang web bình thường -->
+    <mapping path="/*" name="web" decorator="/web.jsp"/>
+
+    <!-- Các đường dẫn loại trừ -->
+    <mapping path="/api/*" exclude="true"/>
+    <mapping path="/login*" exclude="true"/>
+    <mapping path="/register*" exclude="true"/>
+    <mapping path="/admin*" exclude="true"/>
+    <mapping path="/views/web/product_ajax_list.jsp" exclude="true"/>
+    <mapping path="/ajax-product-list" exclude="true"/>
+    <exclude path="/ajax-product-list*"/>
+</sitemesh>
