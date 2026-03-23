@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "188667560203",
+    "project_id": "btandroid-223d9",
+    "storage_bucket": "btandroid-223d9.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:188667560203:android:08c681922826401b45220e",
+        "android_client_info": {
+          "package_name": "com.example.tuantc"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBWeaZ0EpCL-764l0dk7ak_cr13KNkC7ew"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

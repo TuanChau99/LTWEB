@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_bottom_sheet"
+    android:orientation="vertical"
+    android:padding="20dp">
+
+    <View
+        android:layout_width="40dp"
+        android:layout_height="4dp"
+        android:layout_gravity="center"
+        android:layout_marginBottom="20dp"
+        android:background="#E2E8F0" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Thông tin nhận hàng"
+        android:textColor="#1E293B"
+        android:textSize="18sp"
+        android:textStyle="bold" />
+
+    <EditText
+        android:id="@+id/edtReceiverName"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_marginTop="20dp"
+        android:background="@android:drawable/editbox_background"
+        android:hint="Họ và tên người nhận"
+        android:paddingHorizontal="15dp"
+        android:textSize="14sp" />
+
+    <EditText
+        android:id="@+id/edtReceiverPhone"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_marginTop="12dp"
+        android:background="@android:drawable/editbox_background"
+        android:hint="Số điện thoại"
+        android:inputType="phone"
+        android:paddingHorizontal="15dp"
+        android:textSize="14sp" />
+
+    <EditText
+        android:id="@+id/edtReceiverAddress"
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:layout_marginTop="12dp"
+        android:background="@android:drawable/editbox_background"
+        android:gravity="top"
+        android:hint="Địa chỉ chi tiết (Số nhà, tên đường...)"
+        android:padding="12dp"
+        android:textSize="14sp" />
+
+    <Button
+        android:id="@+id/btnConfirmOrder"
+        android:layout_width="match_parent"
+        android:layout_height="55dp"
+        android:layout_marginTop="25dp"
+        android:backgroundTint="#1E293B"
+        android:text="Xác nhận đặt hàng"
+        android:textAllCaps="false"
+        android:textColor="#FFFFFF"
+        android:textStyle="bold" />
+</LinearLayout>
