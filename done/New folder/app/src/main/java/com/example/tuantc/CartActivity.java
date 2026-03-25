@@ -1,6 +1,7 @@
 package com.example.tuantc;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -14,9 +15,9 @@ import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.ArrayList;
 import java.util.List;
-import java.text.SimpleDateFormat; // Thêm import này
-import java.util.Date;             // Thêm import này
-import java.util.Locale;           // Thêm import này
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 public class CartActivity extends AppCompatActivity {
     ListView lvCart;
@@ -25,13 +26,24 @@ public class CartActivity extends AppCompatActivity {
     ProductAdapter adapter;
     ImageView btnBackCart;
 
-    // Danh sách giỏ hàng hiện tại
+    // --- KHỞI TẠO DATABASE HELPER ---
+    DatabaseHelper dbHelper;
+
     public static List<Product> cartList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_cart);
+
+        // --- KHỞI TẠO SQLITE ---
+        dbHelper = new DatabaseHelper(this);
+
+        SharedPreferences pref = getSharedPreferences("UserPrefs", MODE_PRIVATE);
+        String currentUser = pref.getString("current_user", "default_user");
+
+        // --- ĐỌC DỮ LIỆU TỪ SQLITE ---
+        cartList = new ArrayList<>(dbHelper.getCartList(currentUser));
 
         lvCart = findViewById(R.id.lvCart);
         txtTotalPrice = findViewById(R.id.txtTotalPrice);
@@ -40,7 +52,6 @@ public class CartActivity extends AppCompatActivity {
         btnCheckout = findViewById(R.id.btnCheckout);
         btnBackCart = findViewById(R.id.btnBackCart);
 
-        // Khởi tạo adapter (isCart = true, isAdmin = false)
         adapter = new ProductAdapter(this, cartList, true, false);
         lvCart.setAdapter(adapter);
 
@@ -88,50 +99,32 @@ public class CartActivity extends AppCompatActivity {
 
     private void processOrder(String name, String phone, String address) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        String userEmail = "tuantc@vimenstore.com";
+        SharedPreferences pref = getSharedPreferences("UserPrefs", MODE_PRIVATE);
+        String currentUser = pref.getString("current_user", "tuantc@vimenstore.com");
 
-        // 1. Tạo mã đơn hàng duy nhất
         String orderId = "VM" + System.currentTimeMillis();
-
-        // 2. Định dạng ngày tháng thành String
         String currentTime = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault()).format(new Date());
 
-        // 3. Chuyển đổi danh sách Product sang CartItem
         List<CartItem> itemsInOrder = new ArrayList<>();
         for (Product p : cartList) {
             String firstImg = (p.getImages() != null && !p.getImages().isEmpty()) ? p.getImages().get(0) : "";
-
-            CartItem item = new CartItem(
-                    p.getId(),
-                    p.getName(),
-                    p.getPrice(),
-                    firstImg,
-                    p.getSize(),
-                    p.getQuantity() > 0 ? p.getQuantity() : 1
-            );
+            CartItem item = new CartItem(p.getId(), p.getName(), p.getPrice(), firstImg, p.getSize(), p.getQuantity() > 0 ? p.getQuantity() : 1);
             itemsInOrder.add(item);
         }
 
-        // 4. Khởi tạo đối tượng OrderModel
-        OrderModel order = new OrderModel(
-                orderId,
-                name,
-                phone,
-                address,
-                txtTotalPrice.getText().toString(),
-                "Đang giao",
-                currentTime,
-                itemsInOrder
-        );
+        OrderModel order = new OrderModel(orderId, name, phone, address, txtTotalPrice.getText().toString(), "Đang giao", currentTime, itemsInOrder);
 
-        // 5. Lưu lên Firestore
-        db.collection("Orders").document(userEmail)
+        db.collection("Orders").document(currentUser)
                 .collection("user_orders")
                 .document(orderId)
                 .set(order)
                 .addOnSuccessListener(aVoid -> {
                     Toast.makeText(this, "Đặt hàng thành công!", Toast.LENGTH_LONG).show();
+
+                    // --- XÓA GIỎ HÀNG TRONG SQLITE KHI ĐẶT XONG ---
                     cartList.clear();
+                    dbHelper.clearCart(currentUser);
+
                     adapter.notifyDataSetChanged();
                     updateTotal();
                     finish();
@@ -149,9 +142,7 @@ public class CartActivity extends AppCompatActivity {
                 long unitPrice = Long.parseLong(priceStr);
                 int qty = p.getQuantity() > 0 ? p.getQuantity() : 1;
                 subtotal += (unitPrice * qty);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            } catch (Exception e) { e.printStackTrace(); }
         }
 
         double tax = subtotal * 0.05;
@@ -160,6 +151,11 @@ public class CartActivity extends AppCompatActivity {
         if (txtSubtotal != null) txtSubtotal.setText(String.format("%,d VNĐ", subtotal));
         if (txtTax != null) txtTax.setText(String.format("%,.0f VNĐ", tax));
         if (txtTotalPrice != null) txtTotalPrice.setText(String.format("%,.0f VNĐ", total));
+
+        // --- LƯU LẠI VÀO SQLITE KHI CÓ THAY ĐỔI ---
+        SharedPreferences pref = getSharedPreferences("UserPrefs", MODE_PRIVATE);
+        String currentUser = pref.getString("current_user", "default_user");
+        if (dbHelper != null) dbHelper.saveCartList(currentUser, cartList);
     }
 
     @Override

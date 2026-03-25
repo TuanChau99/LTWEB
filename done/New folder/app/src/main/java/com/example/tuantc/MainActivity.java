@@ -19,7 +19,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // Ánh xạ các View từ XML
         edtUser = findViewById(R.id.edtUsername);
         edtPass = findViewById(R.id.edtPassword);
         btnLogin = findViewById(R.id.btnLogin);
@@ -29,48 +28,36 @@ public class MainActivity extends AppCompatActivity {
             String user = edtUser.getText().toString().trim();
             String pass = edtPass.getText().toString().trim();
 
-            // Lấy thông tin từ SharedPreferences (nếu người dùng đã đăng ký trước đó)
             SharedPreferences pref = getSharedPreferences("UserPrefs", MODE_PRIVATE);
             String sEmail = pref.getString("saved_email", "");
             String sPhone = pref.getString("saved_phone", "");
             String sPass = pref.getString("saved_pass", "");
 
-            // --- KIỂM TRA ĐIỀU KIỆN ĐĂNG NHẬP ---
-            // 1. Kiểm tra tài khoản đã đăng ký (Email hoặc SĐT)
             boolean isRegisteredUser = ((user.equals(sEmail) || user.equals(sPhone)) && pass.equals(sPass) && !sPass.isEmpty());
-
-            // 2. Tài khoản ADMIN mặc định (Có quyền quản trị)
             boolean isAdminLogin = (user.equals("admin") && pass.equals("123"));
-
-            // 3. Tài khoản USER TEST mặc định (Dành cho việc test nhanh giao diện khách hàng)
             boolean isTestUserLogin = (user.equals("user") && pass.equals("123"));
 
             if (isRegisteredUser || isAdminLogin || isTestUserLogin) {
-                // Lưu thông tin người dùng hiện tại vào bộ nhớ tạm
+                // Xác định quyền Admin
+                boolean isAdmin = (user.equals("admin") || user.equals("admin@gmail.com"));
+
+                // Lưu thông tin vào SharedPreferences để dùng cho toàn hệ thống
                 SharedPreferences.Editor editor = pref.edit();
-                editor.putString("current_user", user);
+                editor.putString("current_user", user); // Đây chính là userKey để lưu giỏ hàng riêng
+                editor.putBoolean("is_admin_role", isAdmin);
                 editor.apply();
 
                 // Chuyển sang màn hình Home
                 Intent intent = new Intent(this, HomeActivity.class);
-
-                // PHÂN QUYỀN: Kiểm tra nếu là admin thì mới cấp quyền Admin
-                if (user.equals("admin") || user.equals("admin@gmail.com")) {
-                    intent.putExtra("isAdmin", true);
-                } else {
-                    // user1 hoặc các user đã đăng ký khác sẽ là false
-                    intent.putExtra("isAdmin", false);
-                }
-
+                intent.putExtra("isAdmin", isAdmin);
                 startActivity(intent);
-                finish(); // Đóng màn hình Login sau khi đăng nhập thành công
+                finish();
 
             } else {
                 Toast.makeText(this, "Thông tin đăng nhập không chính xác!", Toast.LENGTH_SHORT).show();
             }
         });
 
-        // Chuyển sang màn hình đăng ký
         txtGoToRegister.setOnClickListener(v -> startActivity(new Intent(this, RegisterActivity.class)));
     }
 }
