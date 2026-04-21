@@ -12,7 +12,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class FavoriteActivity extends AppCompatActivity {
-    // Không nên dùng static nếu muốn quản lý chặt chẽ bằng DB
     public static List<Product> favList = new ArrayList<>();
 
     GridView gvFavorites;

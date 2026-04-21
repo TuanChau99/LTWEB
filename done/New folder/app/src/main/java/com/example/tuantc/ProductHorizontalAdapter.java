@@ -39,7 +39,7 @@ public class ProductHorizontalAdapter extends RecyclerView.Adapter<ProductHorizo
             holder.imgProduct.setImageResource(R.drawable.ic_launcher_background);
         }
 
-        // 2. CẬP NHẬT: Gửi đầy đủ mảng ảnh sang DetailActivity để hiển thị ViewPager
+        // 2. CẬP NHẬT
         holder.itemView.setOnClickListener(v -> {
             Intent intent = new Intent(context, DetailActivity.class);
             intent.putExtra("pId", product.getId());
@@ -47,7 +47,7 @@ public class ProductHorizontalAdapter extends RecyclerView.Adapter<ProductHorizo
             intent.putExtra("pPrice", product.getPrice());
             intent.putExtra("pRating", product.getRating());
 
-            // QUAN TRỌNG: Gửi mảng pImages thay vì pImage đơn lẻ
+            //  Gửi mảng pImages thay vì pImage đơn lẻ
             if (product.getImages() != null) {
                 intent.putStringArrayListExtra("pImages", new ArrayList<>(product.getImages()));
             } else {

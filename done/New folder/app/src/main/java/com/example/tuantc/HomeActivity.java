@@ -34,6 +34,7 @@ import java.util.List;
 import java.util.Map;
 import android.graphics.Color;
 import android.content.SharedPreferences;
+import android.widget.Button;
 
 public class HomeActivity extends AppCompatActivity {
     ImageView btnSearchHeader, btnNotification;
@@ -43,11 +44,14 @@ public class HomeActivity extends AppCompatActivity {
     List<Product> productList, searchList;
     ProductAdapter adapter;
 
-    RecyclerView rvNewProducts, rvBestSellers;
+    RecyclerView rvNewProducts, rvBestSellers, rvVouchers;
+    List<Voucher> voucherList;
+    VoucherAdapter voucherAdapter;
     List<Product> newProductsList, bestSellersList;
     ProductHorizontalAdapter newAdapter, bestAdapter;
 
-    LinearLayout navHome, navFavorite, navCart, navProfile;
+    //LinearLayout navHome, navFavorite, navCart, navProfile;
+    LinearLayout navContainer;
     FloatingActionButton fabAddProduct;
     private FirebaseFirestore firestore;
     ViewPager2 viewPagerBanner;
@@ -105,6 +109,7 @@ public class HomeActivity extends AppCompatActivity {
         loadCategoriesFromFirestore();
         setupBanner();
         loadProductsFromFirestore();
+        loadVouchersFromFirestore();
 
         btnSearchHeader.setOnClickListener(v -> showSearchDialog());
 
@@ -169,24 +174,78 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     private void initViews() {
+        // 1. Header và Tiêu đề
         btnSearchHeader = findViewById(R.id.btnSearchHeader);
         btnNotification = findViewById(R.id.btnNotification);
-        gvProducts = findViewById(R.id.gvProducts);
-        tvSeeAll = findViewById(R.id.tvSeeAll);
-        tvAddCategory = findViewById(R.id.tvAddCategory);
+        tvSearchTitle = findViewById(R.id.tvSearchTitle);
+
+        // 2. Banner và Danh mục
         viewPagerBanner = findViewById(R.id.viewPagerBanner);
-        fabAddProduct = findViewById(R.id.fabAddProduct);
+        layoutCategories = findViewById(R.id.layoutCategories);
+        tvAddCategory = findViewById(R.id.tvAddCategory);
+
+        // 3. Nội dung chính và Danh sách sản phẩm
+        layoutHomeContent = findViewById(R.id.layoutHomeContent);
         rvNewProducts = findViewById(R.id.rvNewProducts);
         rvBestSellers = findViewById(R.id.rvBestSellers);
-        navHome = findViewById(R.id.navHome);
-        navFavorite = findViewById(R.id.navFavorite);
-        navCart = findViewById(R.id.navCart);
-        navProfile = findViewById(R.id.navProfile);
-        tvSearchTitle = findViewById(R.id.tvSearchTitle);
-        layoutHomeContent = findViewById(R.id.layoutHomeContent);
-        layoutCategories = findViewById(R.id.layoutCategories);
+        gvProducts = findViewById(R.id.gvProducts);
+        tvSeeAll = findViewById(R.id.tvSeeAll);
+
+        // 4. Các nút chức năng Admin
+        fabAddProduct = findViewById(R.id.fabAddProduct);
+
+        // 5. Ánh xạ Container chứa Menu mới thay cho các nav cũ
+        navContainer = findViewById(R.id.layoutBottomNavContainer);
+        rvVouchers = findViewById(R.id.rvVouchers);
+    }
+    private void setupUserMenu() {
+        navContainer.removeAllViews();
+        addNavItem("Trang chủ", android.R.drawable.ic_menu_today, HomeActivity.class);
+        addNavItem("Yêu thích", R.drawable.heart, FavoriteActivity.class);
+        addNavItem("Giỏ hàng", android.R.drawable.ic_menu_directions, CartActivity.class);
+        addNavItem("Đơn hàng", android.R.drawable.ic_menu_recent_history, OrderHistoryActivity.class);
+        addNavItem("Cá nhân", android.R.drawable.ic_menu_myplaces, ProfileActivity.class);
     }
 
+    private void setupAdminMenu() {
+        navContainer.removeAllViews();
+        addNavItem("Trang chủ", android.R.drawable.ic_menu_today, HomeActivity.class);
+        addNavItem("Nhóm SP", android.R.drawable.ic_menu_agenda, AdminCategoryActivity.class);
+        addNavItem("Sản phẩm", android.R.drawable.ic_menu_manage, AdminProductActivity.class);
+        addNavItem("Đơn hàng", android.R.drawable.ic_menu_view, OrderHistoryActivity.class);
+        addNavItem("Cá nhân", android.R.drawable.ic_menu_myplaces, ProfileActivity.class);
+    }
+
+    private void addNavItem(String title, int iconRes, Class<?> targetActivity) {
+        // Nạp layout item_nav_menu.xml vào container
+        View itemView = getLayoutInflater().inflate(R.layout.item_nav_menu, null);
+
+        // Chia đều chiều rộng cho các icon
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1.0f);
+        itemView.setLayoutParams(params);
+
+        TextView tv = itemView.findViewById(R.id.tvNavTitle);
+        ImageView img = itemView.findViewById(R.id.imgNavIcon);
+
+        tv.setText(title);
+        img.setImageResource(iconRes);
+
+        // Highlight màu xanh nếu đang ở trang đó
+        if (this.getClass().getSimpleName().equals(targetActivity.getSimpleName())) {
+            tv.setTextColor(Color.parseColor("#10B981"));
+            img.setColorFilter(Color.parseColor("#10B981"));
+        }
+
+        itemView.setOnClickListener(v -> {
+            if (this.getClass() != targetActivity) {
+                Intent intent = new Intent(this, targetActivity);
+                intent.putExtra("isAdmin", isAdmin); // Luôn truyền quyền Admin đi cùng
+                startActivity(intent);
+            }
+        });
+
+        navContainer.addView(itemView);
+    }
     private void loadCategoriesFromFirestore() {
         firestore.collection("Categories").get().addOnSuccessListener(snapshots -> {
             layoutCategories.removeAllViews();
@@ -368,10 +427,14 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     private void setupNavigation() {
-        navHome.setOnClickListener(v -> filterProducts(""));
-        navFavorite.setOnClickListener(v -> startActivity(new Intent(this, FavoriteActivity.class)));
-        navCart.setOnClickListener(v -> startActivity(new Intent(this, CartActivity.class)));
-        navProfile.setOnClickListener(v -> startActivity(new Intent(this, ProfileActivity.class)));
+        // Gọi hàm tạo Menu động dựa trên quyền đã check ở onCreate
+        if (navContainer != null) {
+            if (isAdmin) {
+                setupAdminMenu();
+            } else {
+                setupUserMenu();
+            }
+        }
     }
 
     private void setupRecyclerViews() {
@@ -381,8 +444,40 @@ public class HomeActivity extends AppCompatActivity {
         bestAdapter = new ProductHorizontalAdapter(this, bestSellersList);
         rvNewProducts.setAdapter(newAdapter);
         rvBestSellers.setAdapter(bestAdapter);
+
         adapter = new ProductAdapter(this, searchList, false, isAdmin);
         gvProducts.setAdapter(adapter);
+
+        // Cấu hình cho Voucher
+        rvVouchers.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+        voucherList = new ArrayList<>();
+        voucherAdapter = new VoucherAdapter(this, voucherList);
+
+        // XỬ LÝ CLICK CHỌN VOUCHER
+        voucherAdapter.setOnVoucherClickListener(voucher -> {
+            // Lưu mã vào SharedPreferences để CartActivity lấy ra dùng
+            SharedPreferences pref = getSharedPreferences("VoucherPrefs", MODE_PRIVATE);
+            SharedPreferences.Editor editor = pref.edit();
+            editor.putString("applied_code", voucher.getCode());
+            editor.apply();
+
+            Toast.makeText(this, "Đã lưu mã: " + voucher.getCode() + ". Vào giỏ hàng để sử dụng!", Toast.LENGTH_SHORT).show();
+        });
+
+        rvVouchers.setAdapter(voucherAdapter);
+    }
+
+    private void loadVouchersFromFirestore() {
+        firestore.collection("Vouchers").get().addOnSuccessListener(snapshots -> {
+            voucherList.clear(); // Clear ngay khi bắt đầu nhận kết quả
+            if (!snapshots.isEmpty()) {
+                for (DocumentSnapshot doc : snapshots) {
+                    Voucher v = doc.toObject(Voucher.class);
+                    if (v != null) voucherList.add(v);
+                }
+            }
+            voucherAdapter.notifyDataSetChanged(); // Luôn báo để UI cập nhật (kể cả khi rỗng)
+        }).addOnFailureListener(e -> Log.e("ERROR", "Lỗi: " + e.getMessage()));
     }
 
     private void goToDetail(Product product) {
@@ -433,63 +528,105 @@ public class HomeActivity extends AppCompatActivity {
 
     private void showEditProductDialog(Product product, int position) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Chỉnh Sửa Sản Phẩm");
-        LinearLayout layout = new LinearLayout(this);
-        layout.setOrientation(LinearLayout.VERTICAL);
-        layout.setPadding(60, 40, 60, 20);
 
-        final EditText inName = new EditText(this);
+        // Nạp layout tùy chỉnh cho Dialog
+        View dialogView = getLayoutInflater().inflate(R.layout.dialog_edit_product, null);
+        builder.setView(dialogView);
+
+        EditText inName = dialogView.findViewById(R.id.edtEditProductName);
+        EditText inPrice = dialogView.findViewById(R.id.edtEditProductPrice);
+        EditText inDescription = dialogView.findViewById(R.id.edtEditProductDescription);
+        EditText inImages = dialogView.findViewById(R.id.edtEditProductImages);
+        ImageView imgPreview = dialogView.findViewById(R.id.imgEditPreview);
+        Button btnSelectImg = dialogView.findViewById(R.id.btnSelectImage);
+        Spinner spnCat = dialogView.findViewById(R.id.spnEditCategory);
+
+        // 1. Đổ dữ liệu hiện tại của sản phẩm vào các ô nhập
         inName.setText(product.getName());
-        layout.addView(inName);
-
-        final EditText inPrice = new EditText(this);
         inPrice.setText(product.getPrice());
-        layout.addView(inPrice);
 
-        final EditText inOldPrice = new EditText(this);
-        inOldPrice.setText(product.getOldPrice());
-        layout.addView(inOldPrice);
-
-        final EditText inImages = new EditText(this);
-        if (product.getImages() != null) {
+        if (product.getImages() != null && !product.getImages().isEmpty()) {
             inImages.setText(String.join(", ", product.getImages()));
+            // Hiển thị ảnh mẫu hiện tại (lấy ảnh đầu tiên trong danh sách)
+            int resId = getResources().getIdentifier(product.getImages().get(0), "drawable", getPackageName());
+            imgPreview.setImageResource(resId != 0 ? resId : android.R.drawable.ic_menu_gallery);
         }
-        layout.addView(inImages);
 
-        final Spinner spnCat = new Spinner(this);
+        // 2. Thiết lập sự kiện cho nút CHỌN ẢNH
+        btnSelectImg.setOnClickListener(v -> {
+            AlertDialog.Builder imgBuilder = new AlertDialog.Builder(this);
+            imgBuilder.setTitle("Thay đổi hình ảnh");
+
+            final EditText inputImg = new EditText(this);
+            inputImg.setHint("Nhập tên file ảnh (ví dụ: ao_vest_xanh)");
+            imgBuilder.setView(inputImg);
+
+            imgBuilder.setPositiveButton("Áp dụng", (dialogImg, whichImg) -> {
+                String newImgName = inputImg.getText().toString().trim();
+                if (!newImgName.isEmpty()) {
+                    // Cập nhật text trong ô danh sách ảnh
+                    inImages.setText(newImgName);
+
+                    // Cập nhật ngay hình ảnh xem trước trên giao diện sửa
+                    int resId = getResources().getIdentifier(newImgName, "drawable", getPackageName());
+                    if (resId != 0) {
+                        imgPreview.setImageResource(resId);
+                    } else {
+                        Toast.makeText(this, "Không tìm thấy ảnh: " + newImgName + " trong hệ thống", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
+            imgBuilder.setNegativeButton("Đóng", null);
+            imgBuilder.show();
+        });
+
+        // 3. Thiết lập Spinner danh mục
         ArrayAdapter<String> dataAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, categoryNames);
         dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spnCat.setAdapter(dataAdapter);
         if (product.getCategory() != null) spnCat.setSelection(categoryNames.indexOf(product.getCategory()));
-        layout.addView(spnCat);
 
-        builder.setView(layout);
-
-        builder.setPositiveButton("Cập Nhật", (dialog, which) -> {
+        // 4. Xử lý nút LƯU để cập nhật lên Firebase
+        builder.setPositiveButton("LƯU", (dialog, which) -> {
             String name = inName.getText().toString().trim();
             String price = inPrice.getText().toString().trim();
-            String oldP = inOldPrice.getText().toString().trim();
             String cat = spnCat.getSelectedItem().toString();
             String imgString = inImages.getText().toString().trim();
+
             List<String> newImagesList = new ArrayList<>();
             if (!imgString.isEmpty()) {
-                for (String s : imgString.split(",")) newImagesList.add(s.trim());
+                for (String s : imgString.split(",")) {
+                    newImagesList.add(s.trim());
+                }
             }
 
+            // Tạo Map dữ liệu để cập nhật
+            Map<String, Object> updateData = new HashMap<>();
+            updateData.put("name", name);
+            updateData.put("price", price);
+            updateData.put("images", newImagesList);
+            updateData.put("category", cat);
+
+            // Cập nhật lên Firestore dựa trên ID sản phẩm
             firestore.collection("Product").document(product.getId())
-                    .update("name", name, "price", price, "oldPrice", oldP, "images", newImagesList, "category", cat)
+                    .update(updateData)
                     .addOnSuccessListener(aVoid -> {
-                        product.setName(name); product.setPrice(price); product.setOldPrice(oldP);
-                        product.setImages(newImagesList); product.setCategory(cat);
+                        // Cập nhật lại đối tượng product trong bộ nhớ để GridView hiển thị đúng
+                        product.setName(name);
+                        product.setPrice(price);
+                        product.setImages(newImagesList);
+                        product.setCategory(cat);
+
                         adapter.notifyDataSetChanged();
-                        Toast.makeText(this, "Đã cập nhật!", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(this, "Đã lưu thay đổi!", Toast.LENGTH_SHORT).show();
+                    })
+                    .addOnFailureListener(e -> {
+                        Toast.makeText(this, "Lỗi cập nhật: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                     });
         });
 
-        builder.setNegativeButton("XÓA", (dialog, which) -> showDeleteConfirmDialog(product, position));
-        AlertDialog dialog = builder.create();
-        dialog.show();
-        dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(Color.RED);
+        builder.setNegativeButton("HỦY", null);
+        builder.show();
     }
 
     private void showDeleteConfirmDialog(Product product, int position) {

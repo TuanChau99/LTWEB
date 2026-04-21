@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
@@ -8,7 +9,8 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="56dp"
-        android:background="@android:color/white">
+        android:background="@android:color/white"
+        android:elevation="2dp">
         <ImageView
             android:id="@+id/btnBackDetail"
             android:layout_width="40dp"
@@ -29,7 +31,8 @@
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1">
+        android:layout_weight="1"
+        android:fillViewport="true">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -50,7 +53,8 @@
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="12dp">
+                android:layout_marginBottom="12dp"
+                app:cardCornerRadius="4dp">
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -67,6 +71,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
+                        android:lineSpacingExtra="4dp"
                         android:text="Tên - SĐT - Địa chỉ"
                         android:textColor="@android:color/black"/>
                 </LinearLayout>
@@ -82,16 +87,18 @@
             <ListView
                 android:id="@+id/lvOrderItems"
                 android:layout_width="match_parent"
-                android:layout_height="300dp"
-                android:background="@android:color/white" />
+                android:layout_height="wrap_content"
+                android:divider="@null"
+                android:background="@android:color/white"
+                android:nestedScrollingEnabled="false" />
 
             <TextView
                 android:id="@+id/tvDetailStatus"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:gravity="right"
-                android:text="Trạng thái: Đang giao"
+                android:gravity="end"
+                android:text="Trạng thái: ..."
                 android:textColor="#FF9800"
                 android:textStyle="bold" />
         </LinearLayout>
@@ -102,7 +109,8 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:padding="12dp"
-        android:background="@android:color/white">
+        android:background="@android:color/white"
+        android:elevation="4dp">
 
         <Button
             android:id="@+id/btnCancelOrder"
@@ -118,7 +126,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Xác nhận (Admin)"
+            android:text="Xác nhận"
             android:visibility="gone"
             android:backgroundTint="#EE4D2D"/>
     </LinearLayout>

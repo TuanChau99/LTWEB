@@ -47,6 +47,36 @@
         android:padding="20dp"
         android:background="#F8FAFC">
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="15dp"
+            android:background="@drawable/bg_voucher_item"
+            android:padding="5dp"
+            android:gravity="center_vertical">
+
+            <EditText
+                android:id="@+id/edtVoucherCode"
+                android:layout_width="0dp"
+                android:layout_height="45dp"
+                android:layout_weight="1"
+                android:background="@android:color/transparent"
+                android:hint="Nhập mã giảm giá..."
+                android:paddingHorizontal="12dp"
+                android:textSize="14sp"
+                android:singleLine="true"/>
+
+            <Button
+                android:id="@+id/btnApplyVoucher"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:backgroundTint="#10B981"
+                android:text="Áp dụng"
+                android:textSize="12sp"
+                android:textAllCaps="false" />
+        </LinearLayout>
+
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
@@ -62,6 +92,26 @@
                 android:layout_alignParentEnd="true"
                 android:textColor="#1E293B"
                 android:text="0 VNĐ" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/layoutDiscount"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:visibility="gone">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Giảm giá:"
+                android:textColor="#10B981" />
+            <TextView
+                android:id="@+id/txtDiscount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:textColor="#10B981"
+                android:text="-0 VNĐ" />
         </RelativeLayout>
 
         <RelativeLayout

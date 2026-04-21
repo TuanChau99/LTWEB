@@ -88,6 +88,23 @@
                         android:layout_height="match_parent" />
                 </androidx.cardview.widget.CardView>
 
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Mã giảm giá hot"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:layout_marginHorizontal="20dp"
+                    android:layout_marginTop="20dp" />
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rvVouchers"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:paddingStart="15dp"
+                    android:clipToPadding="false"
+                    android:orientation="horizontal" />
                 <RelativeLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -217,40 +234,20 @@
     <androidx.cardview.widget.CardView
         android:id="@+id/bottomNavCard"
         android:layout_width="match_parent"
-        android:layout_height="70dp"
+        android:layout_height="75dp"
         android:layout_alignParentBottom="true"
-        app:cardCornerRadius="0dp"
-        app:cardElevation="20dp">
+        app:cardElevation="20dp"
+        app:cardCornerRadius="0dp">
+
         <LinearLayout
+            android:id="@+id/layoutBottomNavContainer"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="horizontal"
+            android:background="#FFFFFF"
             android:gravity="center"
-            android:weightSum="4"
-            android:background="#FFFFFF">
-            <LinearLayout android:id="@+id/navHome" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:gravity="center">
-                <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:paddingHorizontal="16dp" android:paddingVertical="8dp" android:background="@android:drawable/toast_frame" android:backgroundTint="#10B981" android:gravity="center">
-                    <ImageView android:layout_width="22dp" android:layout_height="22dp" android:src="@android:drawable/ic_menu_today" app:tint="#FFFFFF" />
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text=" Home" android:textColor="#FFFFFF" android:textStyle="bold" android:textSize="13sp"/>
-                </LinearLayout>
-            </LinearLayout>
-            <LinearLayout
-                android:id="@+id/navFavorite"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:gravity="center">
-
-                <ImageView
-                    android:layout_width="42dp"   android:layout_height="42dp"  android:padding="4dp"         android:src="@drawable/heart"
-                    app:tint="#94A3B8" />
-            </LinearLayout>
-            <LinearLayout android:id="@+id/navCart" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:gravity="center">
-                <ImageView android:layout_width="26dp" android:layout_height="26dp" android:src="@android:drawable/ic_menu_directions" app:tint="#94A3B8" />
-            </LinearLayout>
-            <LinearLayout android:id="@+id/navProfile" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:gravity="center">
-                <ImageView android:layout_width="26dp" android:layout_height="26dp" android:src="@android:drawable/ic_menu_myplaces" app:tint="#94A3B8" />
-            </LinearLayout>
+            android:paddingHorizontal="5dp">
         </LinearLayout>
     </androidx.cardview.widget.CardView>
+
 </RelativeLayout>

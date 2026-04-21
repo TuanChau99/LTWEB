@@ -21,8 +21,10 @@ import java.util.Locale;
 
 public class CartActivity extends AppCompatActivity {
     ListView lvCart;
-    TextView txtTotalPrice, txtSubtotal, txtTax;
-    Button btnCheckout;
+    TextView txtTotalPrice, txtSubtotal, txtTax, txtDiscount;
+    EditText edtVoucherCode;
+    Button btnCheckout, btnApplyVoucher;
+    View layoutDiscount;
     ProductAdapter adapter;
     ImageView btnBackCart;
 
@@ -49,6 +51,13 @@ public class CartActivity extends AppCompatActivity {
         txtTotalPrice = findViewById(R.id.txtTotalPrice);
         txtSubtotal = findViewById(R.id.txtSubtotal);
         txtTax = findViewById(R.id.txtTax);
+
+        // Ánh xạ các View mới cho Voucher
+        txtDiscount = findViewById(R.id.txtDiscount);
+        layoutDiscount = findViewById(R.id.layoutDiscount);
+        edtVoucherCode = findViewById(R.id.edtVoucherCode);
+        btnApplyVoucher = findViewById(R.id.btnApplyVoucher);
+
         btnCheckout = findViewById(R.id.btnCheckout);
         btnBackCart = findViewById(R.id.btnBackCart);
 
@@ -59,12 +68,34 @@ public class CartActivity extends AppCompatActivity {
             btnBackCart.setOnClickListener(v -> finish());
         }
 
+        // --- XỬ LÝ NÚT ÁP DỤNG VOUCHER ---
+        if (btnApplyVoucher != null) {
+            btnApplyVoucher.setOnClickListener(v -> {
+                String code = edtVoucherCode.getText().toString().trim().toUpperCase();
+                if (code.isEmpty()) {
+                    Toast.makeText(this, "Vui lòng nhập mã giảm giá!", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                // Lưu mã vào SharedPreferences để hệ thống nhận diện
+                getSharedPreferences("VoucherPrefs", MODE_PRIVATE).edit().putString("applied_code", code).apply();
+                updateTotal();
+                Toast.makeText(this, "Đã áp dụng mã: " + code, Toast.LENGTH_SHORT).show();
+            });
+        }
+
         btnCheckout.setOnClickListener(v -> {
             if (cartList.isEmpty()) {
                 Toast.makeText(this, "Giỏ hàng của bạn đang trống!", Toast.LENGTH_SHORT).show();
                 return;
             }
-            showAddressBottomSheet();
+
+            // Lấy tổng tiền
+            String totalStr = txtTotalPrice.getText().toString().replace(" VNĐ", "").replace(",", ".");
+
+            // Chuyển sang CheckoutActivity
+            Intent intent = new Intent(CartActivity.this, CheckoutActivity.class);
+            intent.putExtra("total_amount", totalStr);
+            startActivity(intent);
         });
 
         updateTotal();
@@ -112,8 +143,18 @@ public class CartActivity extends AppCompatActivity {
             itemsInOrder.add(item);
         }
 
-        OrderModel order = new OrderModel(orderId, name, phone, address, txtTotalPrice.getText().toString(), "Đang giao", currentTime, itemsInOrder);
-
+        OrderModel order = new OrderModel(
+                orderId,
+                name,
+                phone,
+                address,
+                txtTotalPrice.getText().toString(),
+                "Đang chờ duyệt",
+                currentTime,
+                currentUser,
+                itemsInOrder
+        );
+        db.collection("Orders").document(orderId).set(order);
         db.collection("Orders").document(currentUser)
                 .collection("user_orders")
                 .document(orderId)
@@ -124,6 +165,9 @@ public class CartActivity extends AppCompatActivity {
                     // --- XÓA GIỎ HÀNG TRONG SQLITE KHI ĐẶT XONG ---
                     cartList.clear();
                     dbHelper.clearCart(currentUser);
+
+                    // Xóa luôn mã voucher đã dùng
+                    getSharedPreferences("VoucherPrefs", MODE_PRIVATE).edit().clear().apply();
 
                     adapter.notifyDataSetChanged();
                     updateTotal();
@@ -145,14 +189,50 @@ public class CartActivity extends AppCompatActivity {
             } catch (Exception e) { e.printStackTrace(); }
         }
 
-        double tax = subtotal * 0.05;
-        double total = subtotal + tax;
+        // --- LOGIC VOUCHER ---
+        double discount = 0;
+        SharedPreferences vPref = getSharedPreferences("VoucherPrefs", MODE_PRIVATE);
+        String appliedCode = vPref.getString("applied_code", "");
 
+        if (!appliedCode.isEmpty()) {
+            // Kiểm tra điều kiện áp dụng cho từng mã
+            if (appliedCode.equals("VIMEN50K") && subtotal >= 500000) {
+                discount = 50000;
+            } else if (appliedCode.equals("VIMEN100K") && subtotal >= 1000000) {
+                discount = 100000;
+            } else if (appliedCode.equals("WELCOME")) {
+                discount = subtotal * 0.2; // Giảm 20%
+            } else if (appliedCode.equals("FREESHIP")) {
+                discount = 15000; // Giảm phí ship 15k
+            }
+
+            // Cập nhật giao diện hiển thị giảm giá
+            if (discount > 0) {
+                if (layoutDiscount != null) layoutDiscount.setVisibility(View.VISIBLE);
+                if (txtDiscount != null) txtDiscount.setText(String.format("-%,.0f VNĐ", discount));
+                if (edtVoucherCode != null) edtVoucherCode.setText(appliedCode);
+            } else {
+                if (layoutDiscount != null) layoutDiscount.setVisibility(View.GONE);
+                if (!appliedCode.isEmpty() && subtotal > 0) {
+                    Toast.makeText(this, "Đơn hàng chưa đủ điều kiện áp dụng mã này", Toast.LENGTH_SHORT).show();
+                }
+            }
+        } else {
+            if (layoutDiscount != null) layoutDiscount.setVisibility(View.GONE);
+        }
+
+        double tax = (subtotal - discount) * 0.05;
+        if (tax < 0) tax = 0;
+
+        double total = subtotal - discount + tax;
+
+        // Hiển thị lên giao diện
         if (txtSubtotal != null) txtSubtotal.setText(String.format("%,d VNĐ", subtotal));
         if (txtTax != null) txtTax.setText(String.format("%,.0f VNĐ", tax));
+
         if (txtTotalPrice != null) txtTotalPrice.setText(String.format("%,.0f VNĐ", total));
 
-        // --- LƯU LẠI VÀO SQLITE KHI CÓ THAY ĐỔI ---
+        // Lưu SQLite
         SharedPreferences pref = getSharedPreferences("UserPrefs", MODE_PRIVATE);
         String currentUser = pref.getString("current_user", "default_user");
         if (dbHelper != null) dbHelper.saveCartList(currentUser, cartList);

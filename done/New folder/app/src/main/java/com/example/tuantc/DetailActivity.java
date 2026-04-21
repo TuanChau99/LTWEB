@@ -14,15 +14,16 @@ import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
+import androidx.recyclerview.widget.GridLayoutManager; // Import mới
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DetailActivity extends AppCompatActivity {
+public class DetailActivity extends AppCompatActivity implements VariantAdapter.OnVariantClickListener {
     ViewPager2 viewPagerImages;
-    RecyclerView rvVariants;
+    RecyclerView rvVariants, rvRelatedProducts;
     TextView txtImageCount, txtNameDetail, txtPriceDetail, txtOldPriceDetail, txtDiscountBadge, txtRatingDetail, txtDescription;
     ImageView btnHeart, imgArrowVariant, imgArrowSize;
     Button btnAddToCart;
@@ -34,7 +35,6 @@ public class DetailActivity extends AppCompatActivity {
     ImageView imgArrowDesc, imgArrowCommit;
     LinearLayout layoutCommitment;
 
-    // --- DATABASE HELPER ---
     DatabaseHelper dbHelper;
 
     @Override
@@ -44,9 +44,10 @@ public class DetailActivity extends AppCompatActivity {
 
         dbHelper = new DatabaseHelper(this);
 
-        // 1. Ánh xạ các View (Giữ nguyên như cũ)
+        // 1. Ánh xạ các View
         viewPagerImages = findViewById(R.id.viewPagerProductImages);
         rvVariants = findViewById(R.id.rvProductVariants);
+        rvRelatedProducts = findViewById(R.id.rvRelatedProducts);
         txtImageCount = findViewById(R.id.txtImageCount);
         txtNameDetail = findViewById(R.id.txtNameDetail);
         txtPriceDetail = findViewById(R.id.txtPriceDetail);
@@ -79,7 +80,6 @@ public class DetailActivity extends AppCompatActivity {
         String rating = getIntent().getStringExtra("pRating");
         ArrayList<String> imageNames = getIntent().getStringArrayListExtra("pImages");
 
-        // --- LẤY THÔNG TIN USER ---
         SharedPreferences pref = getSharedPreferences("UserPrefs", MODE_PRIVATE);
         String currentUser = pref.getString("current_user", "default_user");
 
@@ -118,7 +118,48 @@ public class DetailActivity extends AppCompatActivity {
             }
         }
         if (imageResIds.isEmpty()) imageResIds.add(R.drawable.ic_launcher_background);
+
+        // --- ADAPTER CHO ẢNH CHÍNH ---
         viewPagerImages.setAdapter(new ImageSliderAdapter(imageResIds));
+
+        // --- XỬ LÝ HIỂN THỊ SỐ TRANG (1/N) ---
+        int totalImages = imageResIds.size();
+        txtImageCount.setText("1/" + totalImages);
+        viewPagerImages.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
+            @Override
+            public void onPageSelected(int position) {
+                super.onPageSelected(position);
+                txtImageCount.setText((position + 1) + "/" + totalImages);
+            }
+        });
+
+        // --- ADAPTER CHO MÀU SẮC / KIỂU DÁNG ---
+        if (rvVariants != null) {
+            rvVariants.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+            VariantAdapter variantAdapter = new VariantAdapter(imageResIds, this);
+            rvVariants.setAdapter(variantAdapter);
+        }
+
+        if (rvRelatedProducts != null) {
+            rvRelatedProducts.setLayoutManager(new GridLayoutManager(this, 2));
+
+            List<Product> allProducts = dbHelper.getAllProducts();
+            List<Product> relatedProducts = new ArrayList<>();
+
+            if (allProducts != null) {
+                for (Product p : allProducts) {
+                    if (p.getId() != null && !p.getId().equals(id)) {
+                        relatedProducts.add(p);
+                        // Bạn có thể tăng giới hạn nếu muốn, ví dụ break; sau 10 cái
+                        if (relatedProducts.size() >= 10) break;
+                    }
+                }
+            }
+
+            // Gán Adapter
+            ProductRecyclerAdapter relatedAdapter = new ProductRecyclerAdapter(this, relatedProducts);
+            rvRelatedProducts.setAdapter(relatedAdapter);
+        }
 
         // 6. Xử lý Size
         int[] sizeIds = {R.id.sizeS, R.id.sizeM, R.id.sizeL, R.id.sizeXL};
@@ -168,7 +209,6 @@ public class DetailActivity extends AppCompatActivity {
                 FavoriteActivity.favList.add(favP);
                 btnHeart.setImageTintList(ColorStateList.valueOf(Color.RED));
             }
-            // LƯU VÀO SQLITE
             dbHelper.saveFavoriteList(currentUser, FavoriteActivity.favList);
         });
 
@@ -193,7 +233,6 @@ public class DetailActivity extends AppCompatActivity {
             }
             if (!isExist) CartActivity.cartList.add(cartProduct);
 
-            // LƯU VÀO SQLITE
             dbHelper.saveCartList(currentUser, CartActivity.cartList);
             Toast.makeText(this, "Đã thêm vào giỏ hàng!", Toast.LENGTH_SHORT).show();
         });
@@ -257,6 +296,13 @@ public class DetailActivity extends AppCompatActivity {
             View divider = new View(this);
             divider.setBackgroundColor(Color.parseColor("#E2E8F0"));
             layoutComments.addView(divider, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 2));
+        }
+    }
+
+    @Override
+    public void onVariantClick(int position) {
+        if (viewPagerImages != null) {
+            viewPagerImages.setCurrentItem(position, true);
         }
     }
 }

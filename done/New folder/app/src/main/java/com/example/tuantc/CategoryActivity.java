@@ -131,7 +131,6 @@ public class CategoryActivity extends AppCompatActivity {
                         }
                     }
                     // --- BƯỚC 3: TRUYỀNisAdmin VÀO ADAPTER ---
-                    // Tham số: (Context, List, isCart, isAdmin)
                     adapter = new ProductAdapter(this, productList, false, isAdmin);
                     gvProducts.setAdapter(adapter);
                 });

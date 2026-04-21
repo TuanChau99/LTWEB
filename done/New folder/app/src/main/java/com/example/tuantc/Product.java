@@ -58,7 +58,6 @@ public class Product {
     public void setOrderDate(String orderDate) { this.orderDate = orderDate; }
     public String getSize() { return size; }
     public void setSize(String size) { this.size = size; }
-    // Thêm hàm tiện ích để lấy ảnh đầu tiên làm ảnh đại diện
     public String getPrimaryImage() {
         if (images != null && !images.isEmpty()) {
             return images.get(0);
