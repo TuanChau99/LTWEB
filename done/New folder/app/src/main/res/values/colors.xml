@@ -10,4 +10,5 @@
     <color name="vimen_primary">#1E293B</color> <color name="vimen_accent">#38BDF8</color>  <color name="vimen_background">#F1F5F9</color> <color name="text_black">#0F172A</color>
     <color name="text_grey_dark">#475569</color>
     <color name="text_grey_light">#94A3B8</color>
+
 </resources>

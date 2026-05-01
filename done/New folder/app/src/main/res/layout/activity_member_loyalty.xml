@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F9FAFB"
+    android:orientation="vertical">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp"
+        android:background="#FFFFFF">
+        <ImageView
+            android:id="@+id/btnBackLoyalty"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@android:drawable/ic_menu_revert"
+            app:tint="#333333" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text="Đặc quyền thành viên"
+            android:textColor="#333333"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+    </RelativeLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="8dp">
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/bg_vip_card"
+                    android:padding="20dp">
+
+                    <TextView
+                        android:id="@+id/tvUserLoyaltyName"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="TRẦN CHÂU TUẤN"
+                        android:textColor="#FFFFFF"
+                        android:textSize="20sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tvCurrentRank"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@id/tvUserLoyaltyName"
+                        android:text="HẠNG BẠC (SILVER)"
+                        android:textColor="#E0E7FF"
+                        android:textSize="14sp" />
+
+                    <ImageView
+                        android:layout_width="60dp"
+                        android:layout_height="60dp"
+                        android:layout_alignParentEnd="true"
+                        android:src="@android:drawable/btn_star_big_on"
+                        app:tint="#F59E0B" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentBottom="true"
+                        android:orientation="vertical">
+                        <TextView
+                            android:id="@+id/tvProgressInfo"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Còn 500.000đ nữa để lên hạng Vàng"
+                            android:textColor="#FFFFFF"
+                            android:textSize="12sp" />
+                        <ProgressBar
+                            android:id="@+id/loyaltyProgress"
+                            style="?android:attr/progressBarStyleHorizontal"
+                            android:layout_width="match_parent"
+                            android:layout_height="8dp"
+                            android:layout_marginTop="5dp"
+                            android:progress="75"
+                            android:progressDrawable="@android:drawable/progress_horizontal" />
+                    </LinearLayout>
+                </RelativeLayout>
+            </androidx.cardview.widget.CardView>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:text="Quyền lợi của bạn"
+                android:textColor="#333333"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:orientation="vertical">
+
+                <RelativeLayout style="@style/LoyaltyItemStyle">
+                    <ImageView android:id="@+id/img1" android:src="@android:drawable/ic_menu_send" style="@style/LoyaltyIconStyle" />
+                    <TextView android:layout_toEndOf="@id/img1" android:text="Giảm 5% cho mọi đơn hàng" style="@style/LoyaltyTextStyle" />
+                </RelativeLayout>
+
+                <RelativeLayout style="@style/LoyaltyItemStyle">
+                    <ImageView android:id="@+id/img2" android:src="@android:drawable/ic_menu_today" style="@style/LoyaltyIconStyle" />
+                    <TextView android:layout_toEndOf="@id/img2" android:text="Quà tặng sinh nhật trị giá 200k" style="@style/LoyaltyTextStyle" />
+                </RelativeLayout>
+
+                <RelativeLayout style="@style/LoyaltyItemStyle">
+                    <ImageView android:id="@+id/img3" android:src="@android:drawable/ic_dialog_map" style="@style/LoyaltyIconStyle" />
+                    <TextView android:layout_toEndOf="@id/img3" android:text="Miễn phí vận chuyển toàn quốc" style="@style/LoyaltyTextStyle" />
+                </RelativeLayout>
+            </LinearLayout>
+
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

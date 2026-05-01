@@ -150,7 +150,7 @@ public class DetailActivity extends AppCompatActivity implements VariantAdapter.
                 for (Product p : allProducts) {
                     if (p.getId() != null && !p.getId().equals(id)) {
                         relatedProducts.add(p);
-                        // Bạn có thể tăng giới hạn nếu muốn, ví dụ break; sau 10 cái
+                        // có thể tăng giới hạn nếu muốn, ví dụ break; sau 10 cái
                         if (relatedProducts.size() >= 10) break;
                     }
                 }

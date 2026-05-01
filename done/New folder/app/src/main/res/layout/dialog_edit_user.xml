@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="20dp"
+    android:background="@android:color/white">
+
+    <TextView
+        android:id="@+id/tvDialogTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="SỬA TÀI KHOẢN"
+        android:textColor="#00008B"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:textSize="18sp"
+        android:layout_marginBottom="15dp"/>
+
+    <EditText
+        android:id="@+id/edtDialogUser"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:hint="Username"
+        android:background="@drawable/edittext_border_yellow"
+        android:paddingHorizontal="15dp"
+        android:layout_marginBottom="10dp"/>
+
+    <EditText
+        android:id="@+id/edtDialogPass"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:hint="Password"
+        android:background="@drawable/edittext_border_yellow"
+        android:paddingHorizontal="15dp"
+        android:inputType="textPassword"
+        android:layout_marginBottom="10dp"/>
+
+    <RadioGroup
+        android:id="@+id/rgRules"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Quyền: "
+            android:textStyle="bold"/>
+        <RadioButton
+            android:id="@+id/rbUser"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="user"
+            android:checked="true"/>
+        <RadioButton
+            android:id="@+id/rbAdmin"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="admin"
+            android:layout_marginStart="20dp"/>
+    </RadioGroup>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="end"
+        android:layout_marginTop="20dp">
+
+        <TextView
+            android:id="@+id/btnCancel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="HỦY"
+            android:padding="10dp"
+            android:textStyle="bold"
+            android:textColor="#FF0000"/> <TextView
+        android:id="@+id/btnSave"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="LƯU"
+        android:padding="10dp"
+        android:textStyle="bold"
+        android:textColor="#00008B"
+        android:layout_marginStart="20dp"/>
+    </LinearLayout>
+</LinearLayout>

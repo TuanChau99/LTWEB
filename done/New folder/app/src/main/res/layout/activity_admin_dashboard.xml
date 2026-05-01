@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F1F5F9"
+    android:orientation="vertical">
+
+    <!-- Header với góc bo tròn phía dưới giống hình 2 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:background="@drawable/bg_admin_vimen_header"
+        android:orientation="vertical"
+        android:padding="25dp">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Admin Panel"
+                android:textColor="@android:color/white"
+                android:textSize="24sp"
+                android:textStyle="bold" />
+
+            <ImageView
+                android:id="@+id/btnLogoutAdmin"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:layout_alignParentEnd="true"
+                android:src="@android:drawable/ic_menu_close_clear_cancel"
+                app:tint="@android:color/white" />
+        </RelativeLayout>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="Chào Tuấn, hãy quản trị hệ thống của bạn"
+            android:textColor="#CBD5E1"
+            android:textSize="14sp" />
+    </LinearLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="-40dp"
+        android:clipToPadding="false">
+
+        <GridLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:columnCount="2"
+            android:padding="12dp">
+
+            <!-- Card Sản phẩm -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardManageProduct"
+                style="@style/AdminCardStyle">
+                <LinearLayout style="@style/AdminCardContent">
+                    <ImageView android:src="@android:drawable/ic_menu_manage" style="@style/AdminIconStyle" />
+                    <TextView android:text="Sản phẩm" style="@style/AdminTextStyle" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- Card Danh mục -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardManageCategory"
+                style="@style/AdminCardStyle">
+                <LinearLayout style="@style/AdminCardContent">
+                    <ImageView android:src="@android:drawable/ic_menu_sort_alphabetically" style="@style/AdminIconStyle" />
+                    <TextView android:text="Danh mục" style="@style/AdminTextStyle" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- Card Đơn hàng -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardManageOrder"
+                style="@style/AdminCardStyle">
+                <LinearLayout style="@style/AdminCardContent">
+                    <ImageView android:src="@android:drawable/ic_menu_recent_history" style="@style/AdminIconStyle" />
+                    <TextView android:text="Đơn hàng" style="@style/AdminTextStyle" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- Card Doanh thu -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardReport"
+                style="@style/AdminCardStyle">
+                <LinearLayout style="@style/AdminCardContent">
+                    <ImageView android:src="@android:drawable/ic_menu_gallery" style="@style/AdminIconStyle" />
+                    <TextView android:text="Doanh thu" style="@style/AdminTextStyle" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- Card Người dùng -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardManageUser"
+                style="@style/AdminCardStyle">
+                <LinearLayout style="@style/AdminCardContent">
+                    <ImageView android:src="@android:drawable/ic_menu_myplaces" style="@style/AdminIconStyle" />
+                    <TextView android:text="Người dùng" style="@style/AdminTextStyle" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- Card Voucher -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardManageVoucher"
+                style="@style/AdminCardStyle">
+                <LinearLayout style="@style/AdminCardContent">
+                    <ImageView android:src="@android:drawable/ic_menu_send" style="@style/AdminIconStyle" />
+                    <TextView android:text="Voucher" style="@style/AdminTextStyle" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- Card Khách thân thiết -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardLoyalty"
+                style="@style/AdminCardStyle">
+                <LinearLayout style="@style/AdminCardContent">
+                    <ImageView android:src="@android:drawable/btn_star_big_on" style="@style/AdminIconStyle" />
+                    <TextView android:text="Thân thiết" style="@style/AdminTextStyle" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- Card Xem Shop -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardSwitchUser"
+                style="@style/AdminCardStyle">
+                <LinearLayout style="@style/AdminCardContent">
+                    <ImageView android:src="@android:drawable/ic_menu_directions" style="@style/AdminIconStyle" />
+                    <TextView android:text="Xem shop" style="@style/AdminTextStyle" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+        </GridLayout>
+    </ScrollView>
+</LinearLayout>

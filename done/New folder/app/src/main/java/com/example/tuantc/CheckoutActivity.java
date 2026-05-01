@@ -53,26 +53,45 @@ public class CheckoutActivity extends AppCompatActivity {
             String address = edtAddress.getText().toString().trim();
 
             if (name.isEmpty() || phone.isEmpty() || address.isEmpty()) {
-                Toast.makeText(this, "Vui lòng nhập đầy đủ thông tin!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Vui lòng nhập đầy đủ thông tin nhận hàng!", Toast.LENGTH_SHORT).show();
                 return;
             }
 
+            String cleanAmount = totalAmount.replaceAll("[^\\d]", "");
             int selectedId = rgPayment.getCheckedRadioButtonId();
+
             if (selectedId == R.id.rbQR) {
                 Intent intent = new Intent(this, PaymentQRActivity.class);
                 intent.putExtra("amount", totalAmount);
                 startActivity(intent);
-            } else {
-                saveOrderToFirestore(name, phone, address);
+            }
+            else if (selectedId == R.id.rbVNPAY) {
+                Intent intent = new Intent(this, PaymentVNPAYActivity.class);
+                intent.putExtra("amount", cleanAmount);
+                startActivityForResult(intent, 999);
+            }
+            else {
+                saveOrderToFirestore(name, phone, address, "Thanh toán khi nhận hàng (COD)");
             }
         });
     }
 
-    private void saveOrderToFirestore(String name, String phone, String address) {
-        String dateOrder = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(new Date());
-        String userEmail = "tuantc@vimenstore.com";
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 999 && resultCode == RESULT_OK) {
+            String name = edtName.getText().toString().trim();
+            String phone = edtPhone.getText().toString().trim();
+            String address = edtAddress.getText().toString().trim();
+            // Nếu VNPAY trả về OK, lưu vào Firebase với trạng thái đã thanh toán
+            saveOrderToFirestore(name, phone, address, "VNPAY (Đã thanh toán)");
+        }
+    }
 
-        // 1. Chuyển đổi CartActivity.cartList sang danh sách CartItem để lưu mảng items
+    private void saveOrderToFirestore(String name, String phone, String address, String paymentMethod) {
+        String dateOrder = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(new Date());
+        String userEmail = "tuantest@gmail.com";
+
         List<Map<String, Object>> itemsList = new ArrayList<>();
         for (Product p : CartActivity.cartList) {
             Map<String, Object> itemMap = new HashMap<>();
@@ -80,44 +99,38 @@ public class CheckoutActivity extends AppCompatActivity {
             itemMap.put("name", p.getName());
             itemMap.put("price", p.getPrice());
             itemMap.put("quantity", p.getQuantity() > 0 ? p.getQuantity() : 1);
-
-            // Lấy hình ảnh đầu tiên để hiển thị ở trang chi tiết
             String img = (p.getImages() != null && !p.getImages().isEmpty()) ? p.getImages().get(0) : "";
             itemMap.put("image", img);
-
             itemsList.add(itemMap);
         }
 
-        // 2. Tạo ID đơn hàng duy nhất
         String orderId = "VM" + System.currentTimeMillis();
+        String finalStatus = paymentMethod.contains("VNPAY") ? "Đã Thanh Toán" : "Đang Chờ Duyệt";
 
-        // 3. Đóng gói dữ liệu
         Map<String, Object> order = new HashMap<>();
         order.put("orderId", orderId);
         order.put("customerName", name);
         order.put("customerPhone", phone);
         order.put("shippingAddress", address);
         order.put("totalPrice", totalAmount);
-        order.put("status", "Đang Chờ Duyệt");
+        order.put("paymentMethod", paymentMethod);
+        order.put("status", finalStatus);
         order.put("dateOrder", dateOrder);
         order.put("customerEmail", userEmail);
-        order.put("items", itemsList); // LƯU MẢNG SẢN PHẨM Ở ĐÂY
+        order.put("items", itemsList);
 
-        // 4. Lưu vào đúng cấu trúc phân cấp để hiển thị hình ảnh
         db.collection("Orders").document(userEmail)
                 .collection("user_orders").document(orderId)
                 .set(order)
                 .addOnSuccessListener(aVoid -> {
-                    // Lưu dự phòng tại root Orders để dễ quản lý
+                    // Lưu thêm một bản sao vào collection Orders tổng để Admin dễ quản lý
                     db.collection("Orders").document(orderId).set(order);
-
                     Toast.makeText(this, "Đặt hàng thành công!", Toast.LENGTH_LONG).show();
                     CartActivity.cartList.clear();
-
                     Intent intent = new Intent(this, HomeActivity.class);
                     intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                     startActivity(intent);
-                })
-                .addOnFailureListener(e -> Toast.makeText(this, "Lỗi đặt hàng: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                    finish();
+                });
     }
 }

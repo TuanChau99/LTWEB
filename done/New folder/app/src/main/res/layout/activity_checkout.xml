@@ -120,6 +120,16 @@
                             android:layout_width="match_parent"
                             android:layout_height="50dp"
                             android:text="Thanh toán qua mã QR Ngân hàng"/>
+                        <RadioButton
+                            android:id="@+id/rbVNPAY"
+                            android:layout_width="match_parent"
+                            android:layout_height="50dp"
+                            android:text="Thanh toán qua ví VNPAY"/>
+                        <RadioButton
+                            android:id="@+id/rbZaloPay"
+                            android:layout_width="match_parent"
+                            android:layout_height="50dp"
+                            android:text="Ví điện tử ZaloPay"/>
                     </RadioGroup>
                 </LinearLayout>
             </androidx.cardview.widget.CardView>

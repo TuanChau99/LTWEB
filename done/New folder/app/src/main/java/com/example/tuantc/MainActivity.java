@@ -9,15 +9,21 @@ import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+
 public class MainActivity extends AppCompatActivity {
-    EditText edtUser, edtPass;
-    Button btnLogin;
-    TextView txtGoToRegister;
+    private EditText edtUser, edtPass;
+    private Button btnLogin;
+    private TextView txtGoToRegister;
+    private FirebaseFirestore db;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        db = FirebaseFirestore.getInstance();
 
         edtUser = findViewById(R.id.edtUsername);
         edtPass = findViewById(R.id.edtPassword);
@@ -28,36 +34,56 @@ public class MainActivity extends AppCompatActivity {
             String user = edtUser.getText().toString().trim();
             String pass = edtPass.getText().toString().trim();
 
-            SharedPreferences pref = getSharedPreferences("UserPrefs", MODE_PRIVATE);
-            String sEmail = pref.getString("saved_email", "");
-            String sPhone = pref.getString("saved_phone", "");
-            String sPass = pref.getString("saved_pass", "");
-
-            boolean isRegisteredUser = ((user.equals(sEmail) || user.equals(sPhone)) && pass.equals(sPass) && !sPass.isEmpty());
-            boolean isAdminLogin = (user.equals("admin") && pass.equals("123"));
-            boolean isTestUserLogin = (user.equals("user") && pass.equals("123"));
-
-            if (isRegisteredUser || isAdminLogin || isTestUserLogin) {
-                // Xác định quyền Admin
-                boolean isAdmin = (user.equals("admin") || user.equals("admin@gmail.com"));
-
-                // Lưu thông tin vào SharedPreferences để dùng cho toàn hệ thống
-                SharedPreferences.Editor editor = pref.edit();
-                editor.putString("current_user", user); // Đây chính là userKey để lưu giỏ hàng riêng
-                editor.putBoolean("is_admin_role", isAdmin);
-                editor.apply();
-
-                // Chuyển sang màn hình Home
-                Intent intent = new Intent(this, HomeActivity.class);
-                intent.putExtra("isAdmin", isAdmin);
-                startActivity(intent);
-                finish();
-
-            } else {
-                Toast.makeText(this, "Thông tin đăng nhập không chính xác!", Toast.LENGTH_SHORT).show();
+            if (user.isEmpty() || pass.isEmpty()) {
+                Toast.makeText(this, "Vui lòng nhập đầy đủ tài khoản và mật khẩu!", Toast.LENGTH_SHORT).show();
+                return;
             }
+
+            loginWithFirebase(user, pass);
         });
 
         txtGoToRegister.setOnClickListener(v -> startActivity(new Intent(this, RegisterActivity.class)));
+    }
+
+    private void loginWithFirebase(String username, String password) {
+        db.collection("Users")
+                .whereEqualTo("username", username)
+                .whereEqualTo("password", password)
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    if (!queryDocumentSnapshots.isEmpty()) {
+                        DocumentSnapshot document = queryDocumentSnapshots.getDocuments().get(0);
+
+                        String role = document.getString("rules");
+                        boolean isAdmin = "admin".equalsIgnoreCase(role);
+
+                        SharedPreferences pref = getSharedPreferences("UserPrefs", MODE_PRIVATE);
+                        SharedPreferences.Editor editor = pref.edit();
+                        editor.putString("current_user", username);
+                        editor.putBoolean("is_admin_role", isAdmin);
+                        editor.apply();
+
+                        Intent intent;
+                        if (isAdmin) {
+                            // Nếu là Admin thì vào trang Dashboard quản lý
+                            intent = new Intent(MainActivity.this, AdminDashboardActivity.class);
+                            Toast.makeText(this, "Chào Admin!", Toast.LENGTH_SHORT).show();
+                        } else {
+                            // Nếu là User thường thì vào trang Home mua sắm
+                            intent = new Intent(MainActivity.this, HomeActivity.class);
+                            Toast.makeText(this, "Đăng nhập thành công!", Toast.LENGTH_SHORT).show();
+                        }
+
+                        intent.putExtra("isAdmin", isAdmin);
+                        startActivity(intent);
+                        finish();
+
+                    } else {
+                        Toast.makeText(this, "Tài khoản hoặc mật khẩu không chính xác!", Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(this, "Lỗi kết nối hệ thống: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                });
     }
 }

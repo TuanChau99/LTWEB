@@ -18,7 +18,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     // Tên bảng
     private static final String TABLE_FAVORITES = "favorites";
     private static final String TABLE_CART = "cart";
-    private static final String TABLE_PRODUCTS = "all_products"; // Bảng chứa danh sách sản phẩm chung
+    private static final String TABLE_PRODUCTS = "all_products";
 
     // Các cột cho Fav và Cart
     private static final String COLUMN_USER_ID = "user_id";
